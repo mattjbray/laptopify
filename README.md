@@ -16,6 +16,6 @@ Install ruby dependencies:
 
 Start the app (you must start Spotify first):
 
-    bundle exec app.rb
+    bundle exec ruby app.rb
 
 Volume control assumes PulseAudio.
