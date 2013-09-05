@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <title>Laptopify</title>
+    
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+
+    <style type="text/css" media="all">
+      .btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+        border-left: 0;
+        border-right: 0;
+      }
+    </style>
+  </head>
+  <body ng-app="spotifyControl" ng-controller="PlayerController">
+    <div class="navbar navbar-default">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">Laptopify</a>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-offset-4 col-md-4">
+          <div class="media">
+            <a class="pull-left" href="{{ spotify.metadata.url }}">
+              <img ng-src="{{ spotify.metadata.artUrl }}" class="img-thumbnail media-object">
+            </a>
+            <div class="media-body">
+              <h4 class="media-heading">{{ spotify.metadata.title }}</h4>
+              <p>
+                {{ spotify.metadata.artist }} ({{ spotify.metadata.album }})
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <br>
+
+      <div class="row">
+        <div class="col-md-offset-4 col-md-4">
+          <div class="btn-group btn-group-justified">
+            <a ng-click="spotify.previous()" class="btn btn-default">
+              <span class="glyphicon glyphicon-step-backward"></span>
+            </a>
+            <a ng-click="spotify.playPause()" class="btn btn-default">
+              <span class="glyphicon glyphicon-play"></span>
+              <span class="glyphicon glyphicon-pause"></span>
+            </a>
+            <a ng-click="spotify.next()" class="btn btn-default">
+              <span class="glyphicon glyphicon-step-forward"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <br>
+
+      <div class="row">
+        <div class="col-md-offset-4 col-md-4">
+          <div class="input-group">
+            <span class="input-group-addon">Volume</span>
+            <input ng-model="spotify.volume"
+                   type="range" max="100" min="0"
+                   class="form-control">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+      window.angular.module('spotifyControl', [])
+        .config(function($compileProvider) {
+          $compileProvider.urlSanitizationWhitelist(
+            /^\s*(https?|ftp|mailto|spotify):/);
+        })
+
+        .controller('PlayerController', function($http, $scope, $window) {
+          $scope.spotify = {
+            metadata: {},
+            next: function() {
+              $http.post('/next').success(function() {
+                $scope.spotify.refreshMetadata()
+              });
+            },
+            refresh: function() {
+              $scope.spotify.refreshMetadata();
+              $scope.spotify.refreshVolume();
+            },
+            refreshMetadata: function() {
+              $http.get('/metadata').success(function(data) {
+                $scope.spotify.metadata.artUrl = data['mpris:artUrl'];
+                $scope.spotify.metadata.album = data['xesam:album'];
+                $scope.spotify.metadata.artist = data['xesam:artist'][0];
+                $scope.spotify.metadata.title = data['xesam:title'];
+                $scope.spotify.metadata.url = data['xesam:url'];
+              }); 
+            },
+            refreshVolume: function() {
+              $http.get('/volume').success(function(volume) {
+                $scope.spotify.volume = volume;
+              });
+            },
+            playPause: function() {
+              $http.post('/play_pause').success(function() {
+                $scope.spotify.refreshMetadata()
+              });
+            },
+            previous: function() {
+              $http.post('/previous').success(function() {
+                $scope.spotify.refreshMetadata()
+              });
+            }
+          };
+
+          $scope.$watch('spotify.volume', function(volume, oldVolume) {
+            if (volume !== oldVolume) { $http.post('/volume', {volume: volume}); }
+          });
+
+          $scope.spotify.refresh();
+          $window.setInterval($scope.spotify.refresh, 5000);
+        });
+    </script>
+  </body>
+</html>
