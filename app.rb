@@ -24,6 +24,10 @@ class Spotify
     SpotifyDBus::player.Next
   end
 
+  def self.open_uri uri
+    SpotifyDBus::player.OpenUri uri
+  end
+
   def self.get_volume
     raw_volume = %x( pactl list sinks | grep -m 1 Volume )
     volume = /(\d{1,3})%/.match(raw_volume)[1]
@@ -54,6 +58,11 @@ end
 
 post '/next' do
   Spotify.next
+end
+
+post '/open_uri' do
+  uri = JSON.parse(request.body.read)['uri']
+  Spotify.open_uri uri
 end
 
 get '/volume' do

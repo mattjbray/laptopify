@@ -62,11 +62,28 @@
       <div class="row">
         <div class="col-md-offset-4 col-md-4">
           <div class="input-group">
-            <span class="input-group-addon">Volume</span>
+            <span class="input-group-addon"><span class="glyphicon glyphicon-volume-up"></span></span>
             <input ng-model="spotify.volume"
                    type="range" max="100" min="0"
                    class="form-control">
           </div>
+        </div>
+      </div>
+
+      <br>
+
+      <div class="row">
+        <div class="col-md-offset-4 col-md-4">
+          <form ng-submit="spotify.openUri()">
+            <div class="input-group">
+              <span class="input-group-addon"><span class="glyphicon glyphicon-music"></span></span>
+              <input ng-model="spotify.playlist" type="text" class="form-control"
+                     placeholder="Enter a Spotify URI (or drag a playlist from the app)">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="submit">Open</button>
+              </span>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -84,7 +101,7 @@
             metadata: {},
             next: function() {
               $http.post('/next').success(function() {
-                $scope.spotify.refreshMetadata()
+                $scope.spotify.refreshMetadata();
               });
             },
             refresh: function() {
@@ -105,14 +122,19 @@
                 $scope.spotify.volume = volume;
               });
             },
+            openUri: function() {
+              $http.post('/open_uri', {uri: $scope.spotify.playlist}).success(function() {
+                $scope.spotify.refreshMetadata();
+              });
+            },
             playPause: function() {
               $http.post('/play_pause').success(function() {
-                $scope.spotify.refreshMetadata()
+                $scope.spotify.refreshMetadata();
               });
             },
             previous: function() {
               $http.post('/previous').success(function() {
-                $scope.spotify.refreshMetadata()
+                $scope.spotify.refreshMetadata();
               });
             }
           };
