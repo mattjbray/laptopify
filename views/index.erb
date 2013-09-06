@@ -81,11 +81,11 @@
       </div>
     </div>
     
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" charset="utf-8">
       window.angular.module('spotifyControl', [])
         .config(function($compileProvider) {
-          $compileProvider.urlSanitizationWhitelist(
+          $compileProvider.aHrefSanitizationWhitelist(
             /^\s*(https?|ftp|mailto|spotify):/);
         })
 
