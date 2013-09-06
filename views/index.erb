@@ -67,16 +67,7 @@
 
       <div class="row">
         <div class="col-md-offset-4 col-md-4">
-          <form ng-submit="spotify.openUri()">
-            <div class="input-group">
-              <span class="input-group-addon"><span class="glyphicon glyphicon-music"></span></span>
-              <input ng-model="spotify.playlist" type="text" class="form-control"
-                     placeholder="Enter a Spotify URI (or drag a playlist from the app)">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="submit">Open</button>
-              </span>
-            </div>
-          </form>
+          <div ng-spotify-search></div>
         </div>
       </div>
     </div>
@@ -115,11 +106,6 @@
                 $scope.spotify.volume = volume;
               });
             },
-            openUri: function() {
-              $http.post('/open_uri', {uri: $scope.spotify.playlist}).success(function() {
-                $scope.spotify.refreshMetadata();
-              });
-            },
             playPause: function() {
               $http.post('/play_pause').success(function() {
                 $scope.spotify.refreshMetadata();
@@ -138,7 +124,50 @@
 
           $scope.spotify.refresh();
           $window.setInterval($scope.spotify.refresh, 5000);
+
+          $scope.$on('refresh-metadata', $scope.spotify.refreshMetadata);
+        })
+
+        .directive('ngSpotifySearch', function($http) {
+          return {
+            scope: {},
+            link: function(scope, element, attrs) {
+              scope.openUri = function() {
+                $http.post('/open_uri', {uri: scope.uri});
+                scope.$emit('refresh-metadata');
+              };
+
+              scope.setSearch = function(searchType) {
+                var uri = 'spotify:search:';
+                if (angular.isDefined(searchType)) {
+                  uri += searchType + ':';
+                }
+                scope.uri = uri;
+              };
+            },
+            templateUrl: 'templates/ng-spotify-search'
+          };
         });
+    </script>
+
+    <script type="text/ng-template" id="templates/ng-spotify-search">
+      <form ng-submit="openUri()">
+        <div class="input-group">
+          <span class="input-group-addon"><span class="glyphicon glyphicon-music"></span></span>
+          <input ng-model="uri" type="text" class="form-control"
+                 value="spotify:search:"
+                 placeholder="Enter a Spotify URI (or drag a playlist from the app)">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">Open</button>
+          </span>
+        </div>
+      </form>
+      <div class="btn-group btn-group-justified btn-group-sm">
+        <a class="btn btn-default" ng-click="setSearch()">search</a>
+        <a class="btn btn-default" ng-click="setSearch('track')">track</a>
+        <a class="btn btn-default" ng-click="setSearch('artist')">artist</a>
+        <a class="btn btn-default" ng-click="setSearch('album')">album</a>
+      </div>
     </script>
   </body>
 </html>
