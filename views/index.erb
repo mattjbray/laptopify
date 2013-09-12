@@ -40,8 +40,8 @@
               <span class="glyphicon glyphicon-step-backward"></span>
             </a>
             <a ng-click="spotify.playPause()" class="btn btn-default">
-              <span class="glyphicon glyphicon-play"></span>
-              <span class="glyphicon glyphicon-pause"></span>
+              <span class="glyphicon glyphicon-play" ng-show="spotify.paused"></span>
+              <span class="glyphicon glyphicon-pause" ng-show="spotify.playing"></span>
             </a>
             <a ng-click="spotify.next()" class="btn btn-default">
               <span class="glyphicon glyphicon-step-forward"></span>
@@ -101,7 +101,13 @@
                 $scope.spotify.metadata.artist = data['xesam:artist'][0];
                 $scope.spotify.metadata.title = data['xesam:title'];
                 $scope.spotify.metadata.url = data['xesam:url'];
+                $scope.spotify.playing = (data['status']==='Playing');
+                $scope.spotify.paused = (data['status']!=='Playing');
               }); 
+              //$http.get('/status').success(function(status) {
+              //  $scope.spotify.playing = (status==='Playing');
+              //  $scope.spotify.paused = (status!=='Playing');
+              //});
             },
             refreshVolume: function() {
               $http.get('/volume').success(function(volume) {

@@ -9,7 +9,11 @@ set :bind, '0.0.0.0'
 
 class Spotify
   def self.get_metadata
-    SpotifyDBus::player['Metadata']
+    # TODO: only return metadata here, and use status
+    # However calling both simultaneously makes it hang
+    meta = SpotifyDBus::player['Metadata']
+    meta['status'] = SpotifyDBus::player['PlaybackStatus']
+    meta
   end
 
   def self.play_pause
@@ -37,6 +41,10 @@ class Spotify
     if volume.between?(0, 100)
       %x( pactl set-sink-volume @DEFAULT_SINK@ -- #{volume}% )
     end
+  end
+
+  def self.status
+    SpotifyDBus::player['PlaybackStatus']
   end
 end
 
@@ -72,4 +80,8 @@ end
 post '/volume' do
   volume = JSON.parse(request.body.read)['volume'].to_i
   Spotify.set_volume volume
+end
+
+get '/status' do
+  Spotify.status
 end
