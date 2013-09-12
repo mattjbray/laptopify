@@ -80,7 +80,9 @@
             /^\s*(https?|ftp|mailto|spotify):/);
         })
 
-        .controller('PlayerController', function($http, $scope, $window) {
+        .controller('PlayerController', function($http, $scope, $timeout) {
+          var doRefreshTimeout;
+
           $scope.spotify = {
             metadata: {},
             next: function() {
@@ -122,8 +124,11 @@
             if (volume !== oldVolume) { $http.post('/volume', {volume: volume}); }
           });
 
-          $scope.spotify.refresh();
-          $window.setInterval($scope.spotify.refresh, 5000);
+          doRefreshTimeout = function() { 
+            $scope.spotify.refresh();
+            $timeout(doRefreshTimeout, 5000);
+          }
+          doRefreshTimeout();
 
           $scope.$on('refresh-metadata', $scope.spotify.refreshMetadata);
         })
