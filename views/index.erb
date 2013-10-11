@@ -148,12 +148,20 @@
                 scope.$emit('refresh-metadata');
               };
 
-              scope.setSearch = function(searchType) {
-                var uri = 'spotify:search:';
-                if (angular.isDefined(searchType)) {
-                  uri += searchType + ':';
+              scope.setSearchURI = function(search) {
+                var uri = 'spotify:';
+                if (angular.isDefined(search)) {
+                  uri += search;
                 }
                 scope.uri = uri;
+              };
+
+              scope.setSearchType = function(searchType) {
+                var search = 'search:';
+                if (angular.isDefined(searchType)) {
+                  search += searchType + ':';
+                }
+                scope.setSearchURI(search);
               };
             },
             templateUrl: 'templates/ng-spotify-search'
@@ -174,10 +182,13 @@
         </div>
       </form>
       <div class="btn-group btn-group-justified btn-group-sm">
-        <a class="btn btn-default" ng-click="setSearch()">search</a>
-        <a class="btn btn-default" ng-click="setSearch('track')">track</a>
-        <a class="btn btn-default" ng-click="setSearch('artist')">artist</a>
-        <a class="btn btn-default" ng-click="setSearch('album')">album</a>
+        <a class="btn btn-default" ng-click="setSearchType()">search</a>
+        <a class="btn btn-default" ng-click="setSearchType('track')">track</a>
+        <a class="btn btn-default" ng-click="setSearchType('artist')">artist</a>
+        <a class="btn btn-default" ng-click="setSearchType('album')">album</a>
+      </div>
+      <div class="btn-group btn-group-justified btn-group-sm">
+        <a class="btn btn-default" ng-click="setSearchURI('user:mattjbray:starred')">starred</a>
       </div>
     </script>
   </body>
